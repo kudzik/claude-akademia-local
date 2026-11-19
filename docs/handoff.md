@@ -3,9 +3,9 @@
 ## Aktualny stan
 
 - Gałąź główna: `main`
-- Aktywne zadanie: brak; P2 zaimplementowane
-- Powiązany Issue: #7 — zamknięty
-- Aktywny PR: brak; PR #8 scalony
+- Aktywne zadanie: brak; informacja zwrotna P2 ukończona
+- Powiązany Issue: #9 — zamknięty
+- Aktywny PR: brak; PR #10 scalony
 
 ## Co zostało wykonane
 
@@ -18,6 +18,7 @@
 - Dodano trwały wybór ostatniej lekcji i agenta oraz kontrolowany fallback do historii SQLite dla brakującej sesji dostawcy.
 - Moduł 00 otrzymał diagnozę, teorię, demonstrację, ćwiczenie z jawną checklistą i punktowany test końcowy.
 - Wyniki dydaktyczne są zapisywane w SQLite bez ujawniania kluczy odpowiedzi w API stanu.
+- Po próbie testu każde pytanie otrzymuje deterministyczne omówienie; komunikaty wyników używają `role=status` i `aria-live`.
 
 ## Co zostało zweryfikowane
 

@@ -43,8 +43,17 @@ const lessons = [
 ];
 const lessonMap = new Map(lessons);
 const assessments = {
- diagnostic:{lesson:'00',answers:['b','b','c']},
- final:{lesson:'00',answers:['b','c','a','c']}
+ diagnostic:{lesson:'00',answers:['b','b','c'],explanations:[
+  'Postępy, notatki i wyniki są przechowywane w lokalnej bazie SQLite w katalogu data/.',
+  'Serwer nasłuchuje na 127.0.0.1, aby pozostać dostępny wyłącznie z tego komputera.',
+  'Każdy agent ma osobną historię rozmowy i sesję, ale postęp lekcji pozostaje wspólny.'
+ ]},
+ final:{lesson:'00',answers:['b','c','a','c'],explanations:[
+  'Adres 127.0.0.1 ogranicza dostęp do lokalnego komputera; nie zastępuje jednak uwierzytelniania.',
+  'Przy wyłączonej aplikacji kopiuje się cały katalog data/, aby zachować bazę i jej pliki pomocnicze.',
+  'Status i notatki lekcji są wspólne, natomiast historie oraz identyfikatory sesji są rozdzielone według agenta.',
+  'Ćwiczenie potwierdza użytkownik dopiero po wykonaniu wszystkich jawnych kryteriów; sama odpowiedź modelu nie wystarcza.'
+ ]}
 };
 const teacher = `Jesteś nauczycielem indywidualnego kursu Claude Code w języku polskim. Uczeń jest początkujący. Temat rozpatruj na podstawie oficjalnej dokumentacji Anthropic: https://code.claude.com/docs/en/overview. Nie udawaj, że weryfikowałeś stronę, jeśli nie masz dostępu. Ucz konkretnie, jedno zagadnienie naraz. Na początku lekcji pokaż cel i krótki materiał, potem przykład, ćwiczenie i pytanie sprawdzające. Nie podawaj od razu odpowiedzi na ćwiczenie. Weryfikuj rozumowanie, a nie tylko wybór odpowiedzi. Zwracaj uwagę na uprawnienia i bezpieczeństwo. Gdy uczeń prosi o test, zadawaj po jednym pytaniu. Nie edytuj plików ani nie wykonuj poleceń w trakcie rozmowy nauczycielskiej. Nie twierdź, że postępy zostały automatycznie ocenione — sam uczeń oznacza ukończenie lekcji.`;
 let codexPromise;
@@ -103,9 +112,10 @@ const api = async (req,res,url) => {
   const d=await body(req), assessment=assessments[d.phase];
   if(!assessment||d.lesson!==assessment.lesson||!Array.isArray(d.answers)||d.answers.length!==assessment.answers.length||d.answers.some(x=>typeof x!=='string'||x.length>10)) return send(res,400,{error:'Niepoprawne odpowiedzi testu'});
   const score=d.answers.reduce((sum,x,i)=>sum+(x===assessment.answers[i]?1:0),0);
+  const feedback=d.answers.map((x,i)=>({correct:x===assessment.answers[i],explanation:assessment.explanations[i]}));
   const args=[d.lesson,JSON.stringify(d.answers),score,assessment.answers.length];
   (d.phase==='diagnostic'?setDiagnostic:setFinal).run(...args);
-  return send(res,200,{score,total:assessment.answers.length,passed:d.phase==='final'?score>=3:undefined});
+  return send(res,200,{score,total:assessment.answers.length,passed:d.phase==='final'?score>=3:undefined,feedback});
  }
  if(req.method==='POST' && p==='/api/exercise') { const d=await body(req); if(d.lesson!=='00'||typeof d.completed!=='boolean') return send(res,400,{error:'Niepoprawny wynik ćwiczenia'});setExercise.run(d.lesson,d.completed?1:0);return send(res,200,{ok:true,completed:d.completed}); }
  if(req.method==='POST' && p==='/api/chat') {

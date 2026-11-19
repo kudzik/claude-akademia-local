@@ -105,9 +105,14 @@ test('reject unsupported agent before executing CLI',async()=>{
 test('score and persist the model lesson without exposing answer keys',async()=>{
  const headers={'Content-Type':'application/json',Origin:url};
  const diagnostic=await fetch(url+'/api/assessment',{method:'POST',headers,body:JSON.stringify({lesson:'00',phase:'diagnostic',answers:['b','a','c']})});
- assert.deepEqual(await diagnostic.json(),{score:2,total:3});
+ const diagnosticResult=await diagnostic.json();
+ assert.deepEqual({score:diagnosticResult.score,total:diagnosticResult.total},{score:2,total:3});
+ assert.deepEqual(diagnosticResult.feedback.map(x=>x.correct),[true,false,true]);
+ assert.equal(diagnosticResult.feedback.length,3);
  const final=await fetch(url+'/api/assessment',{method:'POST',headers,body:JSON.stringify({lesson:'00',phase:'final',answers:['b','c','a','c']})});
- assert.deepEqual(await final.json(),{score:4,total:4,passed:true});
+ const finalResult=await final.json();
+ assert.deepEqual({score:finalResult.score,total:finalResult.total,passed:finalResult.passed},{score:4,total:4,passed:true});
+ assert.ok(finalResult.feedback.every(x=>x.correct&&typeof x.explanation==='string'&&x.explanation.length>20));
  const exercise=await fetch(url+'/api/exercise',{method:'POST',headers,body:JSON.stringify({lesson:'00',completed:true})});
  assert.equal(exercise.status,200);
  const invalid=await fetch(url+'/api/assessment',{method:'POST',headers,body:JSON.stringify({lesson:'00',phase:'final',answers:['b']})});

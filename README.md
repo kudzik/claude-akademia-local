@@ -31,6 +31,7 @@ Jeśli Codex nie jest zalogowany, uruchom `codex login` w tym samym środowisku 
 
 - Program 12 modułów Claude Code; moduł 00 jest kompletną lekcją wzorcową, a pozostałe moduły są konspektem.
 - Lekcja 00 zawiera diagnozę, teorię, demonstrację, ćwiczenie z jawnymi kryteriami i punktowany test końcowy.
+- Po każdym teście pokazuje informację zwrotną dla poszczególnych pytań, bez angażowania modelu AI.
 - Wyniki diagnozy, ćwiczenia i testu są trwale zapisywane w SQLite.
 - Ręczny zapis statusu i notatek do `data/academy.sqlite`.
 - Przełącznik Codex / Claude Code / Antigravity w rozmowie nauczycielskiej.
