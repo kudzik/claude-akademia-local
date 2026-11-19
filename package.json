@@ -6,12 +6,16 @@
   "scripts": {
     "start": "node server.mjs",
     "check": "node --check server.mjs",
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "test:ui": "playwright test"
   },
   "dependencies": {
     "@openai/codex-sdk": "latest"
   },
   "engines": {
     "node": ">=24"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1"
   }
 }

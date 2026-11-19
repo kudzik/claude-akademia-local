@@ -76,7 +76,9 @@ Zatrzymaj aplikację i skopiuj **cały katalog `data/`** w bezpieczne miejsce. P
 | `EADDRINUSE` | Port 4317 jest zajęty; zatrzymaj drugą instancję. |
 | Nie zapisują się postępy | Sprawdź możliwość zapisu do katalogu `data/` i miejsce na dysku. |
 
-Kontrola składni serwera: `npm run check`. Testy lokalnego API i bazy: `npm test`. Testy te nie wywołują zewnętrznych modeli. Osobno sprawdź ręcznie po jednej wiadomości u każdego dostępnego agenta.
+Kontrola składni serwera: `npm run check`. Testy lokalnego API i bazy: `npm test`. Testy te nie wywołują zewnętrznych modeli.
+
+Testy interfejsu wykorzystują Playwright. Po pierwszym `npm ci` pobierz lokalne Chromium poleceniem `npx playwright install chromium`, a następnie uruchom `npm run test:ui`. Test pracuje na tymczasowej bazie i nie modyfikuje prywatnego katalogu `data/`. Osobno sprawdź ręcznie po jednej wiadomości u każdego dostępnego agenta.
 
 ## Udział społeczności
 

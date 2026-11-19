@@ -22,3 +22,7 @@ Codex korzysta z `@openai/codex-sdk`, działa w katalogu repozytorium i w sandbo
 ## Granice bezpieczeństwa
 
 Aplikacja jest przeznaczona dla jednego zaufanego użytkownika lokalnego. Ograniczenia Host/Origin zmniejszają ryzyko żądań z przeglądarki, ale nie stanowią uwierzytelniania wobec innych procesów lokalnych. Nie należy wystawiać serwera do LAN ani Internetu.
+
+## Testy interfejsu
+
+Playwright uruchamia kopię serwera w katalogu tymczasowym z osobną bazą SQLite. Test lekcji 00 przechodzi diagnozę, ćwiczenie i test końcowy, sprawdza feedback, przeładowanie strony oraz brak poziomego przepełnienia przy szerokości 390 px. Zrzuty pełnej strony są artefaktami w ignorowanym katalogu `test-results/`.
