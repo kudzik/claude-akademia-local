@@ -29,7 +29,7 @@ Jeśli Codex nie jest zalogowany, uruchom `codex login` w tym samym środowisku 
 
 ## Co już działa
 
-- Program 12 modułów Claude Code; moduł 00 jest kompletną lekcją wzorcową, a pozostałe moduły są konspektem.
+- Program 12 modułów Claude Code; moduły 00 i 01 są kompletnymi lekcjami, a moduły 02–11 pozostają konspektem.
 - Lekcja 00 zawiera diagnozę, teorię, demonstrację, ćwiczenie z jawnymi kryteriami i punktowany test końcowy.
 - Po każdym teście pokazuje informację zwrotną dla poszczególnych pytań, bez angażowania modelu AI.
 - Wyniki diagnozy, ćwiczenia i testu są trwale zapisywane w SQLite.
@@ -45,7 +45,7 @@ Jeśli Codex nie jest zalogowany, uruchom `codex login` w tym samym środowisku 
 ## Czego jeszcze nie ma
 
 - Pełnej weryfikacji działających instalacji Claude Code i Antigravity na każdym systemie operacyjnym.
-- Kompletnych treści dla modułów 01–11 i pełnej ewaluacji kompetencji całego kursu.
+- Kompletnych treści dla modułów 02–11 i pełnej ewaluacji kompetencji całego kursu.
 - Automatycznego przywracania pełnego kontekstu nauczyciela z historii SQLite po utracie sesji Codex.
 - Strumieniowego wyświetlania odpowiedzi, kont użytkowników, dostępu z innych urządzeń.
 - Wbudowanego zarządzania kosztami API lub limitami dostawców.
