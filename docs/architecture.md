@@ -13,7 +13,7 @@ Claude Akademia to pojedynczy proces Node.js udostępniający interfejs z `publi
 
 Katalog `data/` i pliki SQLite wraz z WAL/SHM są ignorowane przez Git. Migracje muszą działać w miejscu i zachowywać dane użytkownika.
 
-Klucze odpowiedzi testów pozostają w `server.mjs`; API stanu udostępnia tylko punktację i stan wykonania. Lekcja nie jest automatycznie oznaczana jako ukończona na podstawie odpowiedzi modelu ani samego wyniku — użytkownik potwierdza status po wykonaniu jawnych kryteriów.
+Klucze odpowiedzi testów pozostają w `server.mjs`; API stanu udostępnia tylko punktację i stan wykonania. Po przesłaniu odpowiedzi endpoint oceny zwraca dla każdego pytania wynik i deterministyczne wyjaśnienie, ale nie udostępnia klucza przed próbą. Lekcja nie jest automatycznie oznaczana jako ukończona na podstawie odpowiedzi modelu ani samego wyniku — użytkownik potwierdza status po wykonaniu jawnych kryteriów.
 
 ## Agent nauczycielski
 
