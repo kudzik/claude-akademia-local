@@ -13,7 +13,7 @@ export async function runTeacherCli(agent,prompt,sessionId) {
   const isClaude=agent==='claude';
   const exe=isClaude?'claude':'agy';
   const args=isClaude
-   ? ['-p',prompt,'--output-format','json','--tools','',...(sessionId?['--resume',sessionId]:[])]
+   ? ['--bare','-p',prompt,'--output-format','json','--tools','','--disallowedTools','mcp__*',...(sessionId?['--resume',sessionId]:[])]
    : ['-p',prompt,'--output-format','json','--sandbox',...(sessionId?['--conversation',sessionId]:[])];
   const output=await spawnJson(exe,args,cwd);
   const result=JSON.parse(output);
