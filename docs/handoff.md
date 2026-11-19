@@ -3,9 +3,9 @@
 ## Aktualny stan
 
 - Gałąź główna: `main`
-- Aktywne zadanie: automatyczne QA przeglądarkowe lekcji 00
-- Powiązany Issue: #11
-- Aktywny PR: #12
+- Aktywne zadanie: brak; wzorzec lekcji 00 zweryfikowany
+- Powiązany Issue: #11 — zamknięty
+- Aktywny PR: brak; PR #12 scalony
 
 ## Co zostało wykonane
 
@@ -35,7 +35,7 @@
 
 ## Co pozostaje do wykonania
 
-- Przejrzeć i scalić PR #12, a następnie zamknąć Issue #11.
+- Utworzyć osobne Issue dla modułu 01 na podstawie zweryfikowanego wzorca.
 
 ## Znane problemy
 
@@ -50,4 +50,4 @@
 
 ## Następny zalecany krok
 
-Wykonać wizualny przegląd i krótką sesję użytkownika lekcji 00, a następnie zdecydować o rozpoczęciu modułu 01.
+Rozpocząć moduł 01 jako osobne zadanie i ponownie użyć wspólnego mechanizmu ocen bez kopiowania endpointów.
