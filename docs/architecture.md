@@ -15,6 +15,8 @@ Katalog `data/` i pliki SQLite wraz z WAL/SHM są ignorowane przez Git. Migracje
 
 Klucze odpowiedzi testów pozostają w `server.mjs`; API stanu udostępnia tylko punktację i stan wykonania. Po przesłaniu odpowiedzi endpoint oceny zwraca dla każdego pytania wynik i deterministyczne wyjaśnienie, ale nie udostępnia klucza przed próbą. Lekcja nie jest automatycznie oznaczana jako ukończona na podstawie odpowiedzi modelu ani samego wyniku — użytkownik potwierdza status po wykonaniu jawnych kryteriów.
 
+Moduł 00 pozostaje treścią bazową w `public/index.html`, a kolejne kompletne moduły są deklarowane w `public/lessons.js`. Wspólny renderer korzysta z konfiguracji liczby pytań i progu zaliczenia. Serwer wybiera klucz oceniania przez parę `lesson_id:phase`, dzięki czemu nowe lekcje nie wymagają nowych endpointów ani osobnych tabel.
+
 ## Agent nauczycielski
 
 Codex korzysta z `@openai/codex-sdk`, działa w katalogu repozytorium i w sandboxie tylko do odczytu. Claude Code i Antigravity są uruchamiane bez powłoki w osobnym katalogu tymczasowym, z limitem czasu i rozmiaru wyjścia. Claude działa w trybach safe/restricted bez narzędzi i MCP; Antigravity działa w swoim sandboxie bez rozwijania poleceń slash. Każdy adapter wznawia własną sesję. Jeśli Codex albo Claude zgłosi, że sesja już nie istnieje, aplikacja usuwa wyłącznie nieaktualny identyfikator i jednokrotnie rozpoczyna nową sesję z maksymalnie 12 ostatnimi wiadomościami z SQLite. Inne błędy, np. sieciowe lub limitu, nie uruchamiają fallbacku. Prompt nauczyciela zabrania edycji oraz wykonywania poleceń.
@@ -25,4 +27,4 @@ Aplikacja jest przeznaczona dla jednego zaufanego użytkownika lokalnego. Ograni
 
 ## Testy interfejsu
 
-Playwright uruchamia kopię serwera w katalogu tymczasowym z osobną bazą SQLite. Test lekcji 00 przechodzi diagnozę, ćwiczenie i test końcowy, sprawdza feedback, przeładowanie strony oraz brak poziomego przepełnienia przy szerokości 390 px. Zrzuty pełnej strony są artefaktami w ignorowanym katalogu `test-results/`.
+Playwright uruchamia kopię serwera w katalogu tymczasowym z osobną bazą SQLite. Testy lekcji 00 i 01 przechodzą diagnozę, ćwiczenie i test końcowy, sprawdzają feedback, niezależność wyników, przeładowanie strony oraz brak poziomego przepełnienia przy szerokości 390 px. Zrzuty pełnej strony są artefaktami w ignorowanym katalogu `test-results/`.

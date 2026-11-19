@@ -43,16 +43,29 @@ const lessons = [
 ];
 const lessonMap = new Map(lessons);
 const assessments = {
- diagnostic:{lesson:'00',answers:['b','b','c'],explanations:[
+ '00:diagnostic':{answers:['b','b','c'],passingScore:null,explanations:[
   'Postępy, notatki i wyniki są przechowywane w lokalnej bazie SQLite w katalogu data/.',
   'Serwer nasłuchuje na 127.0.0.1, aby pozostać dostępny wyłącznie z tego komputera.',
   'Każdy agent ma osobną historię rozmowy i sesję, ale postęp lekcji pozostaje wspólny.'
  ]},
- final:{lesson:'00',answers:['b','c','a','c'],explanations:[
+ '00:final':{answers:['b','c','a','c'],passingScore:3,explanations:[
   'Adres 127.0.0.1 ogranicza dostęp do lokalnego komputera; nie zastępuje jednak uwierzytelniania.',
   'Przy wyłączonej aplikacji kopiuje się cały katalog data/, aby zachować bazę i jej pliki pomocnicze.',
   'Status i notatki lekcji są wspólne, natomiast historie oraz identyfikatory sesji są rozdzielone według agenta.',
   'Ćwiczenie potwierdza użytkownik dopiero po wykonaniu wszystkich jawnych kryteriów; sama odpowiedź modelu nie wystarcza.'
+ ]},
+ '01:diagnostic':{answers:['b','c','b','a'],passingScore:null,explanations:[
+  'Claude to rodzina modeli i asystentów AI; Claude Code jest narzędziem agentowym, które udostępnia modelowi kontrolowane narzędzia programistyczne.',
+  'Claude Code działa między innymi w terminalu, rozszerzeniach IDE, aplikacji desktopowej i przeglądarce.',
+  'Kontekst to bieżący zestaw informacji dostępnych modelowi podczas pracy; ma ograniczoną pojemność i nie jest trwałą pamięcią.',
+  'W trybie Manual odczyt plików w katalogu roboczym zwykle nie wymaga zgody, ale modyfikacje i większość poleceń powłoki wymagają zatwierdzenia.'
+ ]},
+ '01:final':{answers:['b','c','a','b','c'],passingScore:4,explanations:[
+  'Claude Code jest narzędziem agentowym: model rozumuje, a kontrolowane narzędzia pozwalają mu czytać, edytować i uruchamiać polecenia.',
+  'Bezpieczny początek to zadanie obserwacyjne lub tryb planowania, przegląd proponowanych działań i dopiero później świadoma zgoda na zmiany.',
+  'Sesja zachowuje przebieg rozmowy, lecz kontekst ma ograniczoną pojemność i może zostać skompaktowany; ważne ustalenia powinny być zapisane w projekcie.',
+  'Prośba o zgodę jest granicą bezpieczeństwa: należy ocenić dokładne polecenie, zakres plików i skutek, a nie zatwierdzać mechanicznie.',
+  'Po działaniu agentowym trzeba sprawdzić diff, testy i stan repozytorium; odpowiedź modelu sama nie dowodzi poprawności.'
  ]}
 };
 const teacher = `Jesteś nauczycielem indywidualnego kursu Claude Code w języku polskim. Uczeń jest początkujący. Temat rozpatruj na podstawie oficjalnej dokumentacji Anthropic: https://code.claude.com/docs/en/overview. Nie udawaj, że weryfikowałeś stronę, jeśli nie masz dostępu. Ucz konkretnie, jedno zagadnienie naraz. Na początku lekcji pokaż cel i krótki materiał, potem przykład, ćwiczenie i pytanie sprawdzające. Nie podawaj od razu odpowiedzi na ćwiczenie. Weryfikuj rozumowanie, a nie tylko wybór odpowiedzi. Zwracaj uwagę na uprawnienia i bezpieczeństwo. Gdy uczeń prosi o test, zadawaj po jednym pytaniu. Nie edytuj plików ani nie wykonuj poleceń w trakcie rozmowy nauczycielskiej. Nie twierdź, że postępy zostały automatycznie ocenione — sam uczeń oznacza ukończenie lekcji.`;
@@ -79,6 +92,7 @@ const setFinal = db.prepare(`INSERT INTO lesson_results(lesson_id,final_answers,
 const setExercise = db.prepare(`INSERT INTO lesson_results(lesson_id,exercise_completed,updated_at) VALUES (?,?,CURRENT_TIMESTAMP)
  ON CONFLICT(lesson_id) DO UPDATE SET exercise_completed=excluded.exercise_completed,updated_at=CURRENT_TIMESTAMP`);
 const index = await readFile(path.join(root,'public','index.html'));
+const lessonsScript = await readFile(path.join(root,'public','lessons.js'));
 const learningState = () => {
  const lesson=getAppState.get('last_lesson')?.value;
  const agent=getAppState.get('last_agent')?.value;
@@ -109,15 +123,15 @@ const api = async (req,res,url) => {
  if(req.method==='POST' && p==='/api/session') { const d=await body(req); if(!lessonMap.has(d.lesson)||!agentIds.includes(d.agent)) return send(res,400,{error:'Niepoprawny stan nauki'}); setAppState.run('last_lesson',d.lesson);setAppState.run('last_agent',d.agent);return send(res,200,{ok:true}); }
  if(req.method==='POST' && p==='/api/progress') { const d=await body(req); if(!lessonMap.has(d.lesson)||!['not_started','in_progress','completed'].includes(d.status)||typeof d.notes!=='string'||d.notes.length>5000) return send(res,400,{error:'Niepoprawne dane'}); setProgress.run(d.lesson,d.status,d.notes); return send(res,200,{ok:true}); }
  if(req.method==='POST' && p==='/api/assessment') {
-  const d=await body(req), assessment=assessments[d.phase];
-  if(!assessment||d.lesson!==assessment.lesson||!Array.isArray(d.answers)||d.answers.length!==assessment.answers.length||d.answers.some(x=>typeof x!=='string'||x.length>10)) return send(res,400,{error:'Niepoprawne odpowiedzi testu'});
+  const d=await body(req), assessment=assessments[`${d.lesson}:${d.phase}`];
+  if(!assessment||!Array.isArray(d.answers)||d.answers.length!==assessment.answers.length||d.answers.some(x=>typeof x!=='string'||x.length>10)) return send(res,400,{error:'Niepoprawne odpowiedzi testu'});
   const score=d.answers.reduce((sum,x,i)=>sum+(x===assessment.answers[i]?1:0),0);
   const feedback=d.answers.map((x,i)=>({correct:x===assessment.answers[i],explanation:assessment.explanations[i]}));
   const args=[d.lesson,JSON.stringify(d.answers),score,assessment.answers.length];
   (d.phase==='diagnostic'?setDiagnostic:setFinal).run(...args);
-  return send(res,200,{score,total:assessment.answers.length,passed:d.phase==='final'?score>=3:undefined,feedback});
+  return send(res,200,{score,total:assessment.answers.length,passed:assessment.passingScore===null?undefined:score>=assessment.passingScore,feedback});
  }
- if(req.method==='POST' && p==='/api/exercise') { const d=await body(req); if(d.lesson!=='00'||typeof d.completed!=='boolean') return send(res,400,{error:'Niepoprawny wynik ćwiczenia'});setExercise.run(d.lesson,d.completed?1:0);return send(res,200,{ok:true,completed:d.completed}); }
+ if(req.method==='POST' && p==='/api/exercise') { const d=await body(req); if(!assessments[`${d.lesson}:final`]||typeof d.completed!=='boolean') return send(res,400,{error:'Niepoprawny wynik ćwiczenia'});setExercise.run(d.lesson,d.completed?1:0);return send(res,200,{ok:true,completed:d.completed}); }
  if(req.method==='POST' && p==='/api/chat') {
   const d=await body(req); const agent=d.agent||'codex';
   if(!lessonMap.has(d.lesson)||!agentIds.includes(agent)||typeof d.message!=='string'||!d.message.trim()||d.message.length>9000) return send(res,400,{error:'Niepoprawna wiadomość'});
@@ -156,6 +170,7 @@ const server=http.createServer(async(req,res)=>{ try {
  }
  const url=new URL(req.url,'http://127.0.0.1');
  if(url.pathname.startsWith('/api/')) return await api(req,res,url);
+ if(req.method==='GET' && url.pathname==='/lessons.js') { res.writeHead(200,{'Content-Type':'text/javascript; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});return res.end(lessonsScript); }
  if(req.method==='GET' && (url.pathname==='/'||url.pathname==='/index.html')) { res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Content-Security-Policy':"default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:",'X-Content-Type-Options':'nosniff'}); return res.end(index); }
  res.writeHead(404); res.end('Nie znaleziono');
 } catch(e) { console.error(e); send(res,500,{error:'Błąd serwera: '+String(e.message||e)}); } });

@@ -61,6 +61,9 @@ test('model lesson markup and client script are present and valid',async()=>{
  const script=html.match(/<script>([\s\S]*)<\/script>/)?.[1];
  assert.ok(script);
  assert.doesNotThrow(()=>new Function(script));
+ const lessonsScript=await readFile(path.join(source,'public','lessons.js'),'utf8');
+ assert.doesNotThrow(()=>new Function(lessonsScript));
+ assert.match(lessonsScript,/Claude, czat i Claude Code/);
 });
 test('reject untrusted Host',async()=>{
  const status=await new Promise((resolve,reject)=>{
@@ -117,9 +120,15 @@ test('score and persist the model lesson without exposing answer keys',async()=>
  assert.equal(exercise.status,200);
  const invalid=await fetch(url+'/api/assessment',{method:'POST',headers,body:JSON.stringify({lesson:'00',phase:'final',answers:['b']})});
  assert.equal(invalid.status,400);
+ const moduleOne=await fetch(url+'/api/assessment',{method:'POST',headers,body:JSON.stringify({lesson:'01',phase:'final',answers:['b','c','a','b','a']})});
+ const moduleOneResult=await moduleOne.json();
+ assert.deepEqual({score:moduleOneResult.score,total:moduleOneResult.total,passed:moduleOneResult.passed},{score:4,total:5,passed:true});
+ await fetch(url+'/api/exercise',{method:'POST',headers,body:JSON.stringify({lesson:'01',completed:true})});
  const state=await (await fetch(url+'/api/state')).json();
  assert.equal('answers' in state,false);
- assert.deepEqual(state.results.map(({lesson_id,diagnostic_score,diagnostic_total,exercise_completed,final_score,final_total})=>({lesson_id,diagnostic_score,diagnostic_total,exercise_completed,final_score,final_total})),[{lesson_id:'00',diagnostic_score:2,diagnostic_total:3,exercise_completed:true,final_score:4,final_total:4}]);
+ const results=Object.fromEntries(state.results.map(x=>[x.lesson_id,x]));
+ assert.deepEqual({score:results['00'].final_score,total:results['00'].final_total,exercise:results['00'].exercise_completed},{score:4,total:4,exercise:true});
+ assert.deepEqual({score:results['01'].final_score,total:results['01'].final_total,exercise:results['01'].exercise_completed},{score:4,total:5,exercise:true});
 });
 test('persist selected lesson and agent across server restart',async()=>{
  const headers={'Content-Type':'application/json',Origin:url};
@@ -131,8 +140,8 @@ test('persist selected lesson and agent across server restart',async()=>{
  await startServer();
  const state=await (await fetch(url+'/api/state')).json();
  assert.deepEqual(state.resume,{lesson:'07',agent:'antigravity'});
- assert.equal(state.results[0].final_score,4);
- assert.equal(state.results[0].exercise_completed,true);
+ assert.equal(state.results.find(x=>x.lesson_id==='00').final_score,4);
+ assert.equal(state.results.find(x=>x.lesson_id==='01').final_score,4);
 });
 test('only recover context for a missing external session',()=>{
  assert.equal(isMissingSessionError(new Error('No conversation found with session ID: test')),true);

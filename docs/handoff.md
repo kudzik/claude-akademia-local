@@ -3,9 +3,9 @@
 ## Aktualny stan
 
 - Gałąź główna: `main`
-- Aktywne zadanie: brak; wzorzec lekcji 00 zweryfikowany
-- Powiązany Issue: #11 — zamknięty
-- Aktywny PR: brak; PR #12 scalony
+- Aktywne zadanie: moduł 01 — podstawy Claude i Claude Code
+- Powiązany Issue: #13
+- Aktywny PR: #14
 
 ## Co zostało wykonane
 
@@ -20,13 +20,15 @@
 - Wyniki dydaktyczne są zapisywane w SQLite bez ujawniania kluczy odpowiedzi w API stanu.
 - Po próbie testu każde pytanie otrzymuje deterministyczne omówienie; komunikaty wyników używają `role=status` i `aria-live`.
 - Dodano Playwright i izolowany test Chromium pełnego przepływu lekcji 00 na desktopie i urządzeniu mobilnym.
+- Dodano kompletny moduł 01 oraz wspólny renderer i mechanizm ocen obsługujący wiele lekcji bez nowych endpointów.
 
 ## Co zostało zweryfikowane
 
 - `npm run check` i `node --check agents.mjs`: zaliczone na Node.js 26.13.0 (2026-11-19).
 - `npm test`: 11/11 testów zaliczonych, w tym migracja starej bazy, punktacja, trwałość wyników po restarcie i składnia skryptu UI.
-- `npm run test:ui`: 2/2 testy Playwright zaliczone; sprawdzono pełny przebieg, feedback, przeładowanie i brak poziomego przepełnienia przy 390 px.
-- Zrzuty desktopowe, mobilne i stanu feedbacku zostały obejrzane; nie wykryto blokujących problemów, poprawiono odstęp komunikatów wyników.
+- `npm run test:ui`: 3/3 testy Playwright zaliczone; sprawdzono oba moduły, feedback, niezależne wyniki, przeładowanie i brak poziomego przepełnienia przy 390 px.
+- Zrzuty modułu 01 na desktopie i mobile zostały obejrzane; test wykrył przepełnienie CSS Grid, które naprawiono przez `minmax(0,1fr)`.
+- Treść modułu 01 zweryfikowano 2026-11-19 z oficjalnymi stronami Anthropic: Overview, Quickstart, Configure permissions i Common workflows.
 - Izolowany test live Claude z nieistniejącą sesją i historią w tymczasowej bazie: fallback zwrócił właściwy kontekst (`K7`).
 - `npm audit --omit=dev`: 0 znanych podatności.
 - Rzeczywiste pojedyncze odpowiedzi: Codex CLI/SDK 0.167.0, Claude Code 2.1.319 i Antigravity 1.5.9 — zaliczone.
@@ -35,7 +37,7 @@
 
 ## Co pozostaje do wykonania
 
-- Utworzyć osobne Issue dla modułu 01 na podstawie zweryfikowanego wzorca.
+- Przejrzeć i scalić PR #14, a następnie zamknąć Issue #13.
 
 ## Znane problemy
 
@@ -50,4 +52,4 @@
 
 ## Następny zalecany krok
 
-Rozpocząć moduł 01 jako osobne zadanie i ponownie użyć wspólnego mechanizmu ocen bez kopiowania endpointów.
+Po zakończeniu modułu 01 ocenić jego długość i retencję wiedzy przed rozpoczęciem modułu 02.

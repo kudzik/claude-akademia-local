@@ -63,11 +63,43 @@ test('complete model lesson persists results and feedback',async({page},testInfo
  await page.screenshot({path:testInfo.outputPath('desktop-full.png'),fullPage:true});
 });
 
+test('complete module 01 independently from module 00',async({page},testInfo)=>{
+ await page.goto(baseUrl);
+ await page.locator('[data-id="01"]').click();
+ await expect(page.getByRole('heading',{name:'01 — Podstawy Claude i Claude Code'})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'2. Claude, czat i Claude Code'})).toBeVisible();
+
+ const diagnostic=page.locator('#diagnosticQuiz');
+ for(const [name,value] of [['q0','b'],['q1','c'],['q2','b'],['q3','a']])await diagnostic.locator(`input[name="${name}"][value="${value}"]`).check();
+ await diagnostic.getByRole('button',{name:'Sprawdź diagnozę'}).click();
+ await expect(page.locator('#diagnosticResult')).toContainText('Wynik: 4/4');
+
+ const checks=page.locator('#exerciseChecklist input');
+ await expect(checks).toHaveCount(6);
+ for(let i=0;i<await checks.count();i++)await checks.nth(i).check();
+ await page.getByRole('button',{name:'Zapisz wykonanie ćwiczenia'}).click();
+
+ const finalQuiz=page.locator('#finalQuiz');
+ for(const [name,value] of [['q0','b'],['q1','c'],['q2','a'],['q3','b'],['q4','a']])await finalQuiz.locator(`input[name="${name}"][value="${value}"]`).check();
+ await finalQuiz.getByRole('button',{name:'Sprawdź test końcowy'}).click();
+ await expect(page.locator('#finalResult')).toContainText('Wynik: 4/5 — zaliczony');
+ await expect(page.locator('#finalResult')).toContainText('Do poprawy');
+ await page.screenshot({path:testInfo.outputPath('module-01-feedback.png'),fullPage:true});
+
+ await page.reload();
+ await expect(page.getByRole('heading',{name:'01 — Podstawy Claude i Claude Code'})).toBeVisible();
+ await expect(page.locator('#diagnosticResult')).toContainText('Ostatni wynik: 4/4');
+ await expect(page.locator('#finalResult')).toContainText('Ostatni wynik: 4/5 — zaliczony');
+ await page.locator('[data-id="00"]').click();
+ await expect(page.locator('#finalResult')).toContainText('Ostatni wynik: 3/4 — zaliczony');
+});
+
 test('mobile layout has no horizontal overflow',async({page},testInfo)=>{
  await page.setViewportSize({width:390,height:844});
  await page.goto(baseUrl);
- const dimensions=await page.evaluate(()=>({scrollWidth:document.documentElement.scrollWidth,innerWidth:window.innerWidth}));
- expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.innerWidth);
+ await page.locator('[data-id="01"]').click();
+ const dimensions=await page.evaluate(()=>({scrollWidth:document.documentElement.scrollWidth,innerWidth:window.innerWidth,offenders:[...document.querySelectorAll('body *')].map(el=>({el,rect:el.getBoundingClientRect()})).filter(x=>x.rect.right>window.innerWidth+1).slice(0,8).map(x=>({tag:x.el.tagName,id:x.el.id,className:x.el.className,right:Math.round(x.rect.right),width:Math.round(x.rect.width),text:x.el.textContent?.trim().slice(0,80)}))}));
+ expect(dimensions.scrollWidth,JSON.stringify(dimensions.offenders)).toBeLessThanOrEqual(dimensions.innerWidth);
  await expect(page.locator('#diagnosticQuiz')).toBeVisible();
- await page.screenshot({path:testInfo.outputPath('mobile-full.png'),fullPage:true});
+ await page.screenshot({path:testInfo.outputPath('module-01-mobile.png'),fullPage:true});
 });
