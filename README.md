@@ -63,9 +63,9 @@ Zatrzymaj aplikację i skopiuj **cały katalog `data/`** w bezpieczne miejsce. P
 | Problem | Co sprawdzić |
 |---|---|
 | `Not inside a trusted directory` | Uruchom aplikację z katalogu repozytorium Git; po pobraniu przez `git clone` katalog ma już `.git`. |
-| Codex nie odpowiada | Logowanie w Codex CLI, uprawnienia, dostęp do modelu, limit użycia i połączenie internetowe.
-| Claude Code nie odpowiada | Uruchom `claude auth status` oraz `claude -p \"Cześć\" --output-format json`; sprawdź wersję CLI i limity. |
-| Antigravity nie odpowiada | Uruchom interaktywnie `agy`, następnie `agy -p \"Cześć\" --output-format json`; sprawdź dostęp i limity. | |
+| Codex nie odpowiada | Logowanie w Codex CLI, uprawnienia, dostęp do modelu, limit użycia i połączenie internetowe. |
+| Claude Code nie odpowiada | Uruchom `claude auth status` oraz `claude --safe-mode --restricted -p \"Cześć\" --output-format json --tools \"\"`; sprawdź wersję CLI i limity. |
+| Antigravity nie odpowiada | Uruchom interaktywnie `agy`, następnie `agy --disable-slash-commands -p \"Cześć\" --output-format json --sandbox`; sprawdź dostęp i limity. |
 | `403 Niedozwolony adres hosta` | Użyj `http://127.0.0.1:4317`, bez proxy i innego hosta. |
 | `403 Niedozwolone źródło żądania` | Wysyłaj żądania z tej samej lokalnej witryny, nie z innej strony. |
 | `EADDRINUSE` | Port 4317 jest zajęty; zatrzymaj drugą instancję. |
