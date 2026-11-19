@@ -61,6 +61,15 @@ const api = async (req,res,url) => {
  send(res,404,{error:'Nie znaleziono endpointu'});
 };
 const server=http.createServer(async(req,res)=>{ try {
+ // Only accept the expected local Host to reduce DNS-rebinding exposure.
+ const expectedHost=`127.0.0.1:${port}`;
+ if(req.headers.host!==expectedHost) return send(res,403,{error:'Niedozwolony adres hosta'});
+ // Browser requests mutating local state must originate from this application.
+ if(req.method==='POST' && req.url?.startsWith('/api/')) {
+  const origin=req.headers.origin;
+  if(origin && origin!==`http://${expectedHost}`) return send(res,403,{error:'Niedozwolone źródło żądania'});
+  if(!req.headers['content-type']?.toLowerCase().startsWith('application/json')) return send(res,415,{error:'Wymagany Content-Type: application/json'});
+ }
  const url=new URL(req.url,'http://127.0.0.1');
  if(url.pathname.startsWith('/api/')) return await api(req,res,url);
  if(req.method==='GET' && (url.pathname==='/'||url.pathname==='/index.html')) { res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Content-Security-Policy':"default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:",'X-Content-Type-Options':'nosniff'}); return res.end(index); }
