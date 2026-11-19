@@ -14,6 +14,7 @@
 - Claude Code używa uwierzytelnienia użytkownika oraz trybów safe/restricted, bez narzędzi, MCP, poleceń slash i interaktywnych próśb o uprawnienia.
 - Antigravity działa w sandboxie i bez rozwijania poleceń slash.
 - Dodano test bezstratnej migracji starych wiadomości Codex do schematu wielu agentów.
+- Właściciel wybrał licencję MIT; dodano standardowy plik `LICENSE`.
 
 ## Co zostało zweryfikowane
 
@@ -31,7 +32,6 @@
 ## Znane problemy
 
 - Testy API wymagają możliwości lokalnego nasłuchu na `127.0.0.1`; ograniczony sandbox może go blokować.
-- Repozytorium nie ma wybranej licencji open source.
 - Integracje CLI zostały sprawdzone na macOS; inne systemy wymagają osobnej weryfikacji.
 
 ## Decyzje i ograniczenia
