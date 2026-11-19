@@ -3,9 +3,9 @@
 ## Aktualny stan
 
 - Gałąź główna: `main`
-- Aktywne zadanie: brak; P1 zakończone
-- Powiązany Issue: #5 — zamknięty
-- Aktywny PR: brak; PR #6 scalony
+- Aktywne zadanie: brak; P2 zaimplementowane
+- Powiązany Issue: #7 — zamknięty
+- Aktywny PR: brak; PR #8 scalony
 
 ## Co zostało wykonane
 
@@ -16,11 +16,13 @@
 - Dodano test bezstratnej migracji starych wiadomości Codex do schematu wielu agentów.
 - Właściciel wybrał licencję MIT; dodano standardowy plik `LICENSE`.
 - Dodano trwały wybór ostatniej lekcji i agenta oraz kontrolowany fallback do historii SQLite dla brakującej sesji dostawcy.
+- Moduł 00 otrzymał diagnozę, teorię, demonstrację, ćwiczenie z jawną checklistą i punktowany test końcowy.
+- Wyniki dydaktyczne są zapisywane w SQLite bez ujawniania kluczy odpowiedzi w API stanu.
 
 ## Co zostało zweryfikowane
 
 - `npm run check` i `node --check agents.mjs`: zaliczone na Node.js 26.13.0 (2026-11-19).
-- `npm test`: 9/9 testów zaliczonych, w tym migracja starej bazy, restart serwera i klasyfikacja błędów sesji.
+- `npm test`: 11/11 testów zaliczonych, w tym migracja starej bazy, punktacja, trwałość wyników po restarcie i składnia skryptu UI.
 - Izolowany test live Claude z nieistniejącą sesją i historią w tymczasowej bazie: fallback zwrócił właściwy kontekst (`K7`).
 - `npm audit --omit=dev`: 0 znanych podatności.
 - Rzeczywiste pojedyncze odpowiedzi: Codex CLI/SDK 0.167.0, Claude Code 2.1.319 i Antigravity 1.5.9 — zaliczone.
@@ -29,12 +31,13 @@
 
 ## Co pozostaje do wykonania
 
-- Utworzyć zakres P2 dla pierwszej kompletnej lekcji wzorcowej.
+- Wykonać wizualny przegląd lekcji 00 w dostępnej przeglądarce przed użyciem jej jako wzorca modułu 01.
 
 ## Znane problemy
 
 - Testy API wymagają możliwości lokalnego nasłuchu na `127.0.0.1`; ograniczony sandbox może go blokować.
 - Integracje CLI zostały sprawdzone na macOS; inne systemy wymagają osobnej weryfikacji.
+- Podgląd wizualny P2 nie był dostępny w bieżącym środowisku narzędzi; DOM, składnia klienta i przepływy API zostały zweryfikowane automatycznie.
 
 ## Decyzje i ograniczenia
 
@@ -44,4 +47,4 @@
 
 ## Następny zalecany krok
 
-Po zakończeniu P1 rozpocząć P2 jako osobne Issue: pierwszą kompletną lekcję wzorcową.
+Wykonać wizualny przegląd i krótką sesję użytkownika lekcji 00, a następnie zdecydować o rozpoczęciu modułu 01.

@@ -15,6 +15,13 @@ db.exec(`PRAGMA journal_mode=WAL;
  CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, lesson_id TEXT NOT NULL, role TEXT NOT NULL, content TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
  CREATE TABLE IF NOT EXISTS threads (lesson_id TEXT PRIMARY KEY, thread_id TEXT NOT NULL);
  CREATE TABLE IF NOT EXISTS app_state (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+ CREATE TABLE IF NOT EXISTS lesson_results (
+  lesson_id TEXT PRIMARY KEY,
+  diagnostic_answers TEXT NOT NULL DEFAULT '[]', diagnostic_score INTEGER, diagnostic_total INTEGER,
+  exercise_completed INTEGER NOT NULL DEFAULT 0,
+  final_answers TEXT NOT NULL DEFAULT '[]', final_score INTEGER, final_total INTEGER,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+ );
 `);
 // Upgrade old single-agent databases without deleting the existing chat history.
 if(!db.prepare('PRAGMA table_info(messages)').all().some(c=>c.name==='agent')) {
@@ -35,6 +42,10 @@ const lessons = [
  ['10','Automatyzacja i Agent SDK'],['11','Projekt końcowy i audyt kompetencji']
 ];
 const lessonMap = new Map(lessons);
+const assessments = {
+ diagnostic:{lesson:'00',answers:['b','b','c']},
+ final:{lesson:'00',answers:['b','c','a','c']}
+};
 const teacher = `Jesteś nauczycielem indywidualnego kursu Claude Code w języku polskim. Uczeń jest początkujący. Temat rozpatruj na podstawie oficjalnej dokumentacji Anthropic: https://code.claude.com/docs/en/overview. Nie udawaj, że weryfikowałeś stronę, jeśli nie masz dostępu. Ucz konkretnie, jedno zagadnienie naraz. Na początku lekcji pokaż cel i krótki materiał, potem przykład, ćwiczenie i pytanie sprawdzające. Nie podawaj od razu odpowiedzi na ćwiczenie. Weryfikuj rozumowanie, a nie tylko wybór odpowiedzi. Zwracaj uwagę na uprawnienia i bezpieczeństwo. Gdy uczeń prosi o test, zadawaj po jednym pytaniu. Nie edytuj plików ani nie wykonuj poleceń w trakcie rozmowy nauczycielskiej. Nie twierdź, że postępy zostały automatycznie ocenione — sam uczeń oznacza ukończenie lekcji.`;
 let codexPromise;
 function codex() { codexPromise ??= import('@openai/codex-sdk').then(m => new m.Codex()); return codexPromise; }
@@ -44,6 +55,7 @@ async function body(req) { let s=''; for await (const chunk of req) { s += chunk
 const messagesFor = db.prepare('SELECT role, content, created_at FROM messages WHERE lesson_id=? AND agent=? ORDER BY id');
 const recentMessages = db.prepare('SELECT role, content FROM messages WHERE lesson_id=? AND agent=? ORDER BY id DESC LIMIT 12');
 const listProgress = db.prepare('SELECT lesson_id, status, notes FROM progress');
+const listResults = db.prepare('SELECT lesson_id, diagnostic_score, diagnostic_total, exercise_completed, final_score, final_total, updated_at FROM lesson_results');
 const getAppState = db.prepare('SELECT value FROM app_state WHERE key=?');
 const setAppState = db.prepare('INSERT INTO app_state(key,value) VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value');
 const getThread = db.prepare('SELECT thread_id FROM agent_threads WHERE lesson_id=? AND agent=?');
@@ -51,6 +63,12 @@ const setThread = db.prepare('INSERT INTO agent_threads (lesson_id,agent,thread_
 const deleteThread = db.prepare('DELETE FROM agent_threads WHERE lesson_id=? AND agent=?');
 const addMessage = db.prepare('INSERT INTO messages(lesson_id,agent,role,content) VALUES (?,?,?,?)');
 const setProgress = db.prepare('INSERT INTO progress(lesson_id,status,notes,updated_at) VALUES (?,?,?,CURRENT_TIMESTAMP) ON CONFLICT(lesson_id) DO UPDATE SET status=excluded.status,notes=excluded.notes,updated_at=CURRENT_TIMESTAMP');
+const setDiagnostic = db.prepare(`INSERT INTO lesson_results(lesson_id,diagnostic_answers,diagnostic_score,diagnostic_total,updated_at) VALUES (?,?,?,?,CURRENT_TIMESTAMP)
+ ON CONFLICT(lesson_id) DO UPDATE SET diagnostic_answers=excluded.diagnostic_answers,diagnostic_score=excluded.diagnostic_score,diagnostic_total=excluded.diagnostic_total,updated_at=CURRENT_TIMESTAMP`);
+const setFinal = db.prepare(`INSERT INTO lesson_results(lesson_id,final_answers,final_score,final_total,updated_at) VALUES (?,?,?,?,CURRENT_TIMESTAMP)
+ ON CONFLICT(lesson_id) DO UPDATE SET final_answers=excluded.final_answers,final_score=excluded.final_score,final_total=excluded.final_total,updated_at=CURRENT_TIMESTAMP`);
+const setExercise = db.prepare(`INSERT INTO lesson_results(lesson_id,exercise_completed,updated_at) VALUES (?,?,CURRENT_TIMESTAMP)
+ ON CONFLICT(lesson_id) DO UPDATE SET exercise_completed=excluded.exercise_completed,updated_at=CURRENT_TIMESTAMP`);
 const index = await readFile(path.join(root,'public','index.html'));
 const learningState = () => {
  const lesson=getAppState.get('last_lesson')?.value;
@@ -77,10 +95,19 @@ async function runAgent(agent,context,threadId) {
 }
 const api = async (req,res,url) => {
  const p=url.pathname;
- if(req.method==='GET' && p==='/api/state') return send(res,200,{agents:agentIds,lessons:lessons.map(([id,title])=>({id,title})),progress:listProgress.all(),resume:learningState()});
+ if(req.method==='GET' && p==='/api/state') return send(res,200,{agents:agentIds,lessons:lessons.map(([id,title])=>({id,title})),progress:listProgress.all(),results:listResults.all().map(x=>({...x,exercise_completed:Boolean(x.exercise_completed)})),resume:learningState()});
  if(req.method==='GET' && p==='/api/messages') { const id=url.searchParams.get('lesson'), agent=url.searchParams.get('agent')||'codex'; if(!lessonMap.has(id)||!agentIds.includes(agent)) return send(res,400,{error:'Nieznana lekcja lub agent'}); return send(res,200,{messages:messagesFor.all(id,agent)}); }
  if(req.method==='POST' && p==='/api/session') { const d=await body(req); if(!lessonMap.has(d.lesson)||!agentIds.includes(d.agent)) return send(res,400,{error:'Niepoprawny stan nauki'}); setAppState.run('last_lesson',d.lesson);setAppState.run('last_agent',d.agent);return send(res,200,{ok:true}); }
  if(req.method==='POST' && p==='/api/progress') { const d=await body(req); if(!lessonMap.has(d.lesson)||!['not_started','in_progress','completed'].includes(d.status)||typeof d.notes!=='string'||d.notes.length>5000) return send(res,400,{error:'Niepoprawne dane'}); setProgress.run(d.lesson,d.status,d.notes); return send(res,200,{ok:true}); }
+ if(req.method==='POST' && p==='/api/assessment') {
+  const d=await body(req), assessment=assessments[d.phase];
+  if(!assessment||d.lesson!==assessment.lesson||!Array.isArray(d.answers)||d.answers.length!==assessment.answers.length||d.answers.some(x=>typeof x!=='string'||x.length>10)) return send(res,400,{error:'Niepoprawne odpowiedzi testu'});
+  const score=d.answers.reduce((sum,x,i)=>sum+(x===assessment.answers[i]?1:0),0);
+  const args=[d.lesson,JSON.stringify(d.answers),score,assessment.answers.length];
+  (d.phase==='diagnostic'?setDiagnostic:setFinal).run(...args);
+  return send(res,200,{score,total:assessment.answers.length,passed:d.phase==='final'?score>=3:undefined});
+ }
+ if(req.method==='POST' && p==='/api/exercise') { const d=await body(req); if(d.lesson!=='00'||typeof d.completed!=='boolean') return send(res,400,{error:'Niepoprawny wynik ćwiczenia'});setExercise.run(d.lesson,d.completed?1:0);return send(res,200,{ok:true,completed:d.completed}); }
  if(req.method==='POST' && p==='/api/chat') {
   const d=await body(req); const agent=d.agent||'codex';
   if(!lessonMap.has(d.lesson)||!agentIds.includes(agent)||typeof d.message!=='string'||!d.message.trim()||d.message.length>9000) return send(res,400,{error:'Niepoprawna wiadomość'});
