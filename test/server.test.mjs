@@ -1,6 +1,7 @@
 import test, { before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
+import { request } from 'node:http';
 import { mkdtemp, cp, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -33,8 +34,11 @@ test('local page and module list', async()=>{
  assert.equal(state.lessons.length,12);
 });
 test('reject untrusted Host',async()=>{
- const r=await fetch(url+'/api/state',{headers:{Host:'evil.example'}});
- assert.equal(r.status,403);
+ const status=await new Promise((resolve,reject)=>{
+  const req=request(url+'/api/state',{headers:{Host:'evil.example'}},res=>{res.resume();resolve(res.statusCode)});
+  req.on('error',reject);req.end();
+ });
+ assert.equal(status,403);
 });
 test('reject cross-origin JSON mutations',async()=>{
  const r=await fetch(url+'/api/progress',{method:'POST',headers:{'Content-Type':'application/json',Origin:'https://evil.example'},body:'{}'});
