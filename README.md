@@ -33,6 +33,8 @@ Jeśli Codex nie jest zalogowany, uruchom `codex login` w tym samym środowisku 
 - Ręczny zapis statusu i notatek do `data/academy.sqlite`.
 - Przełącznik Codex / Claude Code / Antigravity w rozmowie nauczycielskiej.
 - Oddzielna historia rozmów i identyfikatory sesji dla każdego agenta oraz modułu.
+- Automatyczny powrót do ostatnio wybranej lekcji i agenta po restarcie aplikacji.
+- Odtworzenie ograniczonego kontekstu z SQLite, gdy sesja Codex lub Claude Code przestała istnieć.
 - Automatyczna migracja istniejących rozmów Codex bez usuwania zapisanych danych.
 - Codex SDK: sandbox tylko do odczytu; Claude CLI: tryb bez narzędzi i MCP; Antigravity CLI: sandbox, katalog tymczasowy i brak automatycznego zatwierdzania uprawnień.
 - Ograniczenia czasu odpowiedzi i wielkości wyjścia CLI.

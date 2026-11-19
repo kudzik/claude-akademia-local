@@ -8,9 +8,25 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { setTimeout as pause } from 'node:timers/promises';
+import { isMissingSessionError } from '../agents.mjs';
 
 const source=path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-let tmp,child,url;
+let tmp,child,url,port;
+async function startServer(){
+ child=spawn(process.execPath,['server.mjs'],{cwd:tmp,env:{...process.env,PORT:String(port)},stdio:'ignore'});
+ for(let n=0;n<100;n++){
+  if(child.exitCode!==null) throw new Error('Serwer zakończył pracę');
+  try { const r=await fetch(url+'/api/state'); if(r.ok) return; }catch{}
+  await pause(30);
+ }
+ throw new Error('Serwer nie wystartował');
+}
+async function stopServer(){
+ if(!child)return;
+ child.kill();
+ await new Promise(resolve=>{if(child.exitCode!==null)resolve();else child.once('exit',resolve)});
+ child=null;
+}
 before(async()=>{
  tmp=await mkdtemp(path.join(os.tmpdir(),'claude-akademia-test-'));
  await cp(path.join(source,'server.mjs'),path.join(tmp,'server.mjs'));
@@ -24,18 +40,12 @@ before(async()=>{
   INSERT INTO messages(lesson_id,role,content) VALUES ('00','user','starsza rozmowa');
   INSERT INTO threads(lesson_id,thread_id) VALUES ('00','legacy-thread');`);
  legacy.close();
- const port=45000+Math.floor(Math.random()*10000);
+ port=45000+Math.floor(Math.random()*10000);
  url=`http://127.0.0.1:${port}`;
- child=spawn(process.execPath,['server.mjs'],{cwd:tmp,env:{...process.env,PORT:String(port)},stdio:'ignore'});
- for(let n=0;n<100;n++){
-  if(child.exitCode!==null) throw new Error('Serwer zakończył pracę');
-  try { const r=await fetch(url+'/api/state'); if(r.ok) return; }catch{}
-  await pause(30);
- }
- throw new Error('Serwer nie wystartował');
+ await startServer();
 });
 after(async()=>{
- if(child){child.kill();await new Promise(resolve=>{if(child.exitCode!==null)resolve();else child.once('exit',resolve)});}
+ await stopServer();
  if(tmp) await rm(tmp,{recursive:true,force:true});
 });
 test('local page and module list', async()=>{
@@ -82,4 +92,21 @@ test('agent list and separate history queries', async()=>{
 test('reject unsupported agent before executing CLI',async()=>{
  const r=await fetch(url+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json',Origin:url},body:JSON.stringify({lesson:'00',agent:'unknown',message:'Test'})});
  assert.equal(r.status,400);
+});
+test('persist selected lesson and agent across server restart',async()=>{
+ const headers={'Content-Type':'application/json',Origin:url};
+ const saved=await fetch(url+'/api/session',{method:'POST',headers,body:JSON.stringify({lesson:'07',agent:'antigravity'})});
+ assert.equal(saved.status,200);
+ const invalid=await fetch(url+'/api/session',{method:'POST',headers,body:JSON.stringify({lesson:'missing',agent:'codex'})});
+ assert.equal(invalid.status,400);
+ await stopServer();
+ await startServer();
+ const state=await (await fetch(url+'/api/state')).json();
+ assert.deepEqual(state.resume,{lesson:'07',agent:'antigravity'});
+});
+test('only recover context for a missing external session',()=>{
+ assert.equal(isMissingSessionError(new Error('No conversation found with session ID: test')),true);
+ assert.equal(isMissingSessionError(new Error('thread/resume failed: no rollout found for thread id test')),true);
+ assert.equal(isMissingSessionError(new Error('rate limit exceeded')),false);
+ assert.equal(isMissingSessionError(new Error('network timeout')),false);
 });

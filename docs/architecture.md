@@ -8,12 +8,13 @@ Claude Akademia to pojedynczy proces Node.js udostępniający interfejs z `publi
 - `messages`: historia rozmowy przypisana do lekcji i agenta.
 - `agent_threads`: identyfikator zewnętrznej sesji dla pary lekcja–agent.
 - `threads`: tabela starszego schematu, zachowana dla bezstratnej migracji istniejących sesji Codex.
+- `app_state`: ostatnio wybrana lekcja i agent, używane do wznowienia miejsca nauki po restarcie.
 
 Katalog `data/` i pliki SQLite wraz z WAL/SHM są ignorowane przez Git. Migracje muszą działać w miejscu i zachowywać dane użytkownika.
 
 ## Agent nauczycielski
 
-Codex korzysta z `@openai/codex-sdk`, działa w katalogu repozytorium i w sandboxie tylko do odczytu. Claude Code i Antigravity są uruchamiane bez powłoki w osobnym katalogu tymczasowym, z limitem czasu i rozmiaru wyjścia. Claude działa w trybach safe/restricted bez narzędzi i MCP; Antigravity działa w swoim sandboxie bez rozwijania poleceń slash. Każdy adapter wznawia własną sesję. Prompt nauczyciela zabrania edycji oraz wykonywania poleceń.
+Codex korzysta z `@openai/codex-sdk`, działa w katalogu repozytorium i w sandboxie tylko do odczytu. Claude Code i Antigravity są uruchamiane bez powłoki w osobnym katalogu tymczasowym, z limitem czasu i rozmiaru wyjścia. Claude działa w trybach safe/restricted bez narzędzi i MCP; Antigravity działa w swoim sandboxie bez rozwijania poleceń slash. Każdy adapter wznawia własną sesję. Jeśli Codex albo Claude zgłosi, że sesja już nie istnieje, aplikacja usuwa wyłącznie nieaktualny identyfikator i jednokrotnie rozpoczyna nową sesję z maksymalnie 12 ostatnimi wiadomościami z SQLite. Inne błędy, np. sieciowe lub limitu, nie uruchamiają fallbacku. Prompt nauczyciela zabrania edycji oraz wykonywania poleceń.
 
 ## Granice bezpieczeństwa
 

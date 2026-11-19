@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 
 export const agentIds = ['codex','claude','antigravity'];
+export const isMissingSessionError = error => /no conversation found with session id|thread\/resume failed: no rollout found/i.test(String(error?.message||error));
 
 // Teacher mode: no shell interpolation, temporary workspace, bounded output and execution.
 export async function runTeacherCli(agent,prompt,sessionId) {

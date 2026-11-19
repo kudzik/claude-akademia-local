@@ -3,9 +3,9 @@
 ## Aktualny stan
 
 - Gałąź główna: `main`
-- Aktywne zadanie: brak; P0 zakończone
-- Powiązany Issue: brak otwartych Issues
-- Aktywny PR: brak; PR #3 został scalony i zastąpił automatycznie zamknięty PR #2
+- Aktywne zadanie: brak; P1 zakończone
+- Powiązany Issue: #5 — zamknięty
+- Aktywny PR: brak; PR #6 scalony
 
 ## Co zostało wykonane
 
@@ -15,11 +15,13 @@
 - Antigravity działa w sandboxie i bez rozwijania poleceń slash.
 - Dodano test bezstratnej migracji starych wiadomości Codex do schematu wielu agentów.
 - Właściciel wybrał licencję MIT; dodano standardowy plik `LICENSE`.
+- Dodano trwały wybór ostatniej lekcji i agenta oraz kontrolowany fallback do historii SQLite dla brakującej sesji dostawcy.
 
 ## Co zostało zweryfikowane
 
 - `npm run check` i `node --check agents.mjs`: zaliczone na Node.js 26.13.0 (2026-11-19).
-- `npm test`: 7/7 testów zaliczonych, w tym migracja starej bazy SQLite.
+- `npm test`: 9/9 testów zaliczonych, w tym migracja starej bazy, restart serwera i klasyfikacja błędów sesji.
+- Izolowany test live Claude z nieistniejącą sesją i historią w tymczasowej bazie: fallback zwrócił właściwy kontekst (`K7`).
 - `npm audit --omit=dev`: 0 znanych podatności.
 - Rzeczywiste pojedyncze odpowiedzi: Codex CLI/SDK 0.167.0, Claude Code 2.1.319 i Antigravity 1.5.9 — zaliczone.
 - Rzeczywiste wznowienie sesji Claude Code i Antigravity w nowych katalogach tymczasowych — zaliczone.
@@ -27,7 +29,7 @@
 
 ## Co pozostaje do wykonania
 
-- W kolejnym zadaniu utworzyć zakres P1 dotyczący pełnego odtwarzania stanu nauki.
+- Utworzyć zakres P2 dla pierwszej kompletnej lekcji wzorcowej.
 
 ## Znane problemy
 
@@ -42,4 +44,4 @@
 
 ## Następny zalecany krok
 
-Utworzyć Issue i osobny PR dla P1: pełnego odtwarzania miejsca nauki i kontekstu po restarcie.
+Po zakończeniu P1 rozpocząć P2 jako osobne Issue: pierwszą kompletną lekcję wzorcową.
