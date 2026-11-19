@@ -3,9 +3,9 @@
 ## Aktualny stan
 
 - Gałąź główna: `main`
-- Aktywne zadanie: dopracowanie informacji zwrotnej lekcji 00
-- Powiązany Issue: #9
-- Aktywny PR: #10
+- Aktywne zadanie: brak; informacja zwrotna P2 ukończona
+- Powiązany Issue: #9 — zamknięty
+- Aktywny PR: brak; PR #10 scalony
 
 ## Co zostało wykonane
 
@@ -32,7 +32,6 @@
 
 ## Co pozostaje do wykonania
 
-- Przejrzeć i scalić PR #10, a następnie zamknąć Issue #9.
 - Wykonać wizualny przegląd lekcji 00 w dostępnej przeglądarce przed użyciem jej jako wzorca modułu 01.
 
 ## Znane problemy
