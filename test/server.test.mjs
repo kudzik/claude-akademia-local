@@ -12,6 +12,7 @@ let tmp,child,url;
 before(async()=>{
  tmp=await mkdtemp(path.join(os.tmpdir(),'claude-akademia-test-'));
  await cp(path.join(source,'server.mjs'),path.join(tmp,'server.mjs'));
+ await cp(path.join(source,'agents.mjs'),path.join(tmp,'agents.mjs'));
  await cp(path.join(source,'public'),path.join(tmp,'public'),{recursive:true});
  const port=45000+Math.floor(Math.random()*10000);
  url=`http://127.0.0.1:${port}`;
@@ -52,4 +53,18 @@ test('persist lesson progress and reject invalid lessons',async()=>{
  assert.equal(state.progress.find(p=>p.lesson_id==='00').notes,'Test');
  const bad=await fetch(url+'/api/progress',{method:'POST',headers,body:JSON.stringify({lesson:'missing',status:'completed',notes:''})});
  assert.equal(bad.status,400);
+});
+
+test('agent list and separate history queries', async()=>{
+ const state=await (await fetch(url+'/api/state')).json();
+ assert.deepEqual(state.agents,['codex','claude','antigravity']);
+ const result=await fetch(url+'/api/messages?lesson=00&agent=claude');
+ assert.equal(result.status,200);
+ assert.deepEqual((await result.json()).messages,[]);
+ const bad=await fetch(url+'/api/messages?lesson=00&agent=unknown');
+ assert.equal(bad.status,400);
+});
+test('reject unsupported agent before executing CLI',async()=>{
+ const r=await fetch(url+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json',Origin:url},body:JSON.stringify({lesson:'00',agent:'unknown',message:'Test'})});
+ assert.equal(r.status,400);
 });
