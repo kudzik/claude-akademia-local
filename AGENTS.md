@@ -21,7 +21,7 @@ Rozwijaj prostą, lokalną aplikację edukacyjną do nauki Claude Code. Używaj 
 
 ## Kontrole i PR
 
-Przed wysłaniem zmian uruchom `npm run check`, `npm test` i odpowiednie testy ręczne. Testy integracji z dostawcami uruchamiaj tylko, gdy środowisko jest uwierzytelnione; zapisz rzeczywisty wynik. PR ma opisywać zakres, ryzyko, wyniki testów i nierozwiązane ograniczenia. Nie scalaj przy niezaliczonych kontrolach.
+Przed wysłaniem zmian uruchom `npm run check`, `npm test` i odpowiednie testy ręczne. Przy zmianach interfejsu uruchom również `npm run test:ui`; jednorazowo przygotuj Chromium poleceniem `npx playwright install chromium`. Testy integracji z dostawcami uruchamiaj tylko, gdy środowisko jest uwierzytelnione; zapisz rzeczywisty wynik. PR ma opisywać zakres, ryzyko, wyniki testów i nierozwiązane ograniczenia. Nie scalaj przy niezaliczonych kontrolach.
 
 ## Zakończenie pracy
 

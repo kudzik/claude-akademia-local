@@ -3,9 +3,9 @@
 ## Aktualny stan
 
 - Gałąź główna: `main`
-- Aktywne zadanie: brak; informacja zwrotna P2 ukończona
-- Powiązany Issue: #9 — zamknięty
-- Aktywny PR: brak; PR #10 scalony
+- Aktywne zadanie: automatyczne QA przeglądarkowe lekcji 00
+- Powiązany Issue: #11
+- Aktywny PR: #12
 
 ## Co zostało wykonane
 
@@ -19,11 +19,14 @@
 - Moduł 00 otrzymał diagnozę, teorię, demonstrację, ćwiczenie z jawną checklistą i punktowany test końcowy.
 - Wyniki dydaktyczne są zapisywane w SQLite bez ujawniania kluczy odpowiedzi w API stanu.
 - Po próbie testu każde pytanie otrzymuje deterministyczne omówienie; komunikaty wyników używają `role=status` i `aria-live`.
+- Dodano Playwright i izolowany test Chromium pełnego przepływu lekcji 00 na desktopie i urządzeniu mobilnym.
 
 ## Co zostało zweryfikowane
 
 - `npm run check` i `node --check agents.mjs`: zaliczone na Node.js 26.13.0 (2026-11-19).
 - `npm test`: 11/11 testów zaliczonych, w tym migracja starej bazy, punktacja, trwałość wyników po restarcie i składnia skryptu UI.
+- `npm run test:ui`: 2/2 testy Playwright zaliczone; sprawdzono pełny przebieg, feedback, przeładowanie i brak poziomego przepełnienia przy 390 px.
+- Zrzuty desktopowe, mobilne i stanu feedbacku zostały obejrzane; nie wykryto blokujących problemów, poprawiono odstęp komunikatów wyników.
 - Izolowany test live Claude z nieistniejącą sesją i historią w tymczasowej bazie: fallback zwrócił właściwy kontekst (`K7`).
 - `npm audit --omit=dev`: 0 znanych podatności.
 - Rzeczywiste pojedyncze odpowiedzi: Codex CLI/SDK 0.167.0, Claude Code 2.1.319 i Antigravity 1.5.9 — zaliczone.
@@ -32,13 +35,12 @@
 
 ## Co pozostaje do wykonania
 
-- Wykonać wizualny przegląd lekcji 00 w dostępnej przeglądarce przed użyciem jej jako wzorca modułu 01.
+- Przejrzeć i scalić PR #12, a następnie zamknąć Issue #11.
 
 ## Znane problemy
 
 - Testy API wymagają możliwości lokalnego nasłuchu na `127.0.0.1`; ograniczony sandbox może go blokować.
 - Integracje CLI zostały sprawdzone na macOS; inne systemy wymagają osobnej weryfikacji.
-- Podgląd wizualny P2 nie był dostępny w bieżącym środowisku narzędzi; DOM, składnia klienta i przepływy API zostały zweryfikowane automatycznie.
 
 ## Decyzje i ograniczenia
 

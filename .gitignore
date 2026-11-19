@@ -40,3 +40,5 @@ Thumbs.db
 .idea/
 coverage/
 dist/
+test-results/
+playwright-report/

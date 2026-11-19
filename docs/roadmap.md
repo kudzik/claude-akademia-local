@@ -7,4 +7,5 @@
 | P1 | Niezawodne odtwarzanie nauki | Po restarcie wracają postęp, miejsce lekcji i właściwy kontekst wybranego agenta | Stabilne adaptery | Issue #5 / PR #6 — scalony |
 | P2 | Pierwsza kompletna lekcja | Diagnoza, teoria, przykład, ćwiczenie, weryfikacja i test końcowy zapisują wyniki | P1 | Issue #7 / PR #8 — scalony |
 | P2 | Informacja zwrotna lekcji wzorcowej | Każda odpowiedź otrzymuje deterministyczne omówienie; komunikaty są dostępne dla czytników ekranu | PR #8 | Issue #9 / PR #10 — scalony |
+| P2 | Automatyczne QA lekcji wzorcowej | Pełny przepływ lekcji i układ mobilny są sprawdzane w Chromium na tymczasowej bazie | PR #10 | Issue #11 / PR #12 |
 | P3 | Rozwój programu | Kolejne lekcje stosują zweryfikowany wzorzec pierwszej lekcji | P2 | Do utworzenia po P2 |
