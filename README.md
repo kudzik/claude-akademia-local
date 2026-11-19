@@ -79,4 +79,4 @@ Przeczytaj [CONTRIBUTING.md](CONTRIBUTING.md). Problemy bezpieczeństwa zgłasza
 
 ## Licencja
 
-**Nie wybrano jeszcze licencji open source.** Publiczne repozytorium nie oznacza automatycznego prawa do kopiowania, modyfikowania i redystrybucji kodu. Właściciel repozytorium powinien zatwierdzić np. MIT i dodać plik `LICENSE` przed promowaniem projektu jako open source.
+Projekt jest udostępniany na warunkach [licencji MIT](LICENSE).
