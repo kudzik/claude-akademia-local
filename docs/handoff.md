@@ -3,9 +3,9 @@
 ## Aktualny stan
 
 - Gałąź główna: `main`
-- Aktywne zadanie: P1 — odtwarzanie miejsca nauki i kontekstu po restarcie
-- Powiązany Issue: #5
-- Aktywny PR: #6
+- Aktywne zadanie: brak; P1 zakończone
+- Powiązany Issue: #5 — zamknięty
+- Aktywny PR: brak; PR #6 scalony
 
 ## Co zostało wykonane
 
@@ -29,7 +29,7 @@
 
 ## Co pozostaje do wykonania
 
-- Przejrzeć i scalić PR #6, a następnie zamknąć Issue #5.
+- Utworzyć zakres P2 dla pierwszej kompletnej lekcji wzorcowej.
 
 ## Znane problemy
 
