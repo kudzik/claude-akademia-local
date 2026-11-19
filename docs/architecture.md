@@ -9,8 +9,11 @@ Claude Akademia to pojedynczy proces Node.js udostępniający interfejs z `publi
 - `agent_threads`: identyfikator zewnętrznej sesji dla pary lekcja–agent.
 - `threads`: tabela starszego schematu, zachowana dla bezstratnej migracji istniejących sesji Codex.
 - `app_state`: ostatnio wybrana lekcja i agent, używane do wznowienia miejsca nauki po restarcie.
+- `lesson_results`: odpowiedzi i wyniki diagnozy oraz testu końcowego, a także potwierdzenie wykonania ćwiczenia.
 
 Katalog `data/` i pliki SQLite wraz z WAL/SHM są ignorowane przez Git. Migracje muszą działać w miejscu i zachowywać dane użytkownika.
+
+Klucze odpowiedzi testów pozostają w `server.mjs`; API stanu udostępnia tylko punktację i stan wykonania. Lekcja nie jest automatycznie oznaczana jako ukończona na podstawie odpowiedzi modelu ani samego wyniku — użytkownik potwierdza status po wykonaniu jawnych kryteriów.
 
 ## Agent nauczycielski
 
