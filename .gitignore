@@ -1,3 +1,42 @@
+# Dependencies
 node_modules/
+
+# Private local application state, chats, sessions, backups
 data/
+*.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite3-wal
+*.sqlite3-shm
+*.db-journal
+*.sqlite-journal
+*.sqlite3-journal
+*.sqlite-backup
+*.db-backup
+
+# Secrets and local configuration
 .env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.json
+
+# Local runtime and OS/editor artifacts
+*.log
+logs/
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+coverage/
+dist/
