@@ -5,14 +5,15 @@ Claude Akademia to pojedynczy proces Node.js udostępniający interfejs z `publi
 ## Dane
 
 - `progress`: wspólny status i notatki lekcji.
-- `messages`: historia rozmowy przypisana do lekcji; na `main` obsługuje jednego agenta.
-- `threads`: identyfikator zewnętrznej sesji dla lekcji.
+- `messages`: historia rozmowy przypisana do lekcji i agenta.
+- `agent_threads`: identyfikator zewnętrznej sesji dla pary lekcja–agent.
+- `threads`: tabela starszego schematu, zachowana dla bezstratnej migracji istniejących sesji Codex.
 
 Katalog `data/` i pliki SQLite wraz z WAL/SHM są ignorowane przez Git. Migracje muszą działać w miejscu i zachowywać dane użytkownika.
 
 ## Agent nauczycielski
 
-Stan bazowy korzysta z `@openai/codex-sdk`. Wątek jest wznawiany przez zapisany identyfikator, działa w katalogu repozytorium i w trybie tylko do odczytu. Prompt nauczyciela zabrania edycji oraz wykonywania poleceń. Integracje kolejnych CLI są rozwijane w osobnym PR i nie są częścią zatwierdzonego `main`.
+Codex korzysta z `@openai/codex-sdk`, działa w katalogu repozytorium i w sandboxie tylko do odczytu. Claude Code i Antigravity są uruchamiane bez powłoki w osobnym katalogu tymczasowym, z limitem czasu i rozmiaru wyjścia. Claude działa w trybach safe/restricted bez narzędzi i MCP; Antigravity działa w swoim sandboxie bez rozwijania poleceń slash. Każdy adapter wznawia własną sesję. Prompt nauczyciela zabrania edycji oraz wykonywania poleceń.
 
 ## Granice bezpieczeństwa
 

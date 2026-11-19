@@ -2,7 +2,8 @@ import test, { before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { request } from 'node:http';
-import { mkdtemp, cp, rm } from 'node:fs/promises';
+import { DatabaseSync } from 'node:sqlite';
+import { mkdtemp, cp, mkdir, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,7 +14,16 @@ let tmp,child,url;
 before(async()=>{
  tmp=await mkdtemp(path.join(os.tmpdir(),'claude-akademia-test-'));
  await cp(path.join(source,'server.mjs'),path.join(tmp,'server.mjs'));
+ await cp(path.join(source,'agents.mjs'),path.join(tmp,'agents.mjs'));
  await cp(path.join(source,'public'),path.join(tmp,'public'),{recursive:true});
+ await mkdir(path.join(tmp,'data'));
+ const legacy=new DatabaseSync(path.join(tmp,'data','academy.sqlite'));
+ legacy.exec(`CREATE TABLE progress (lesson_id TEXT PRIMARY KEY, status TEXT NOT NULL DEFAULT 'not_started', notes TEXT NOT NULL DEFAULT '', updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
+  CREATE TABLE messages (id INTEGER PRIMARY KEY AUTOINCREMENT, lesson_id TEXT NOT NULL, role TEXT NOT NULL, content TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);
+  CREATE TABLE threads (lesson_id TEXT PRIMARY KEY, thread_id TEXT NOT NULL);
+  INSERT INTO messages(lesson_id,role,content) VALUES ('00','user','starsza rozmowa');
+  INSERT INTO threads(lesson_id,thread_id) VALUES ('00','legacy-thread');`);
+ legacy.close();
  const port=45000+Math.floor(Math.random()*10000);
  url=`http://127.0.0.1:${port}`;
  child=spawn(process.execPath,['server.mjs'],{cwd:tmp,env:{...process.env,PORT:String(port)},stdio:'ignore'});
@@ -56,4 +66,20 @@ test('persist lesson progress and reject invalid lessons',async()=>{
  assert.equal(state.progress.find(p=>p.lesson_id==='00').notes,'Test');
  const bad=await fetch(url+'/api/progress',{method:'POST',headers,body:JSON.stringify({lesson:'missing',status:'completed',notes:''})});
  assert.equal(bad.status,400);
+});
+
+test('agent list and separate history queries', async()=>{
+ const state=await (await fetch(url+'/api/state')).json();
+ assert.deepEqual(state.agents,['codex','claude','antigravity']);
+ const result=await fetch(url+'/api/messages?lesson=00&agent=claude');
+ assert.equal(result.status,200);
+ assert.deepEqual((await result.json()).messages,[]);
+ const migrated=await (await fetch(url+'/api/messages?lesson=00&agent=codex')).json();
+ assert.equal(migrated.messages[0].content,'starsza rozmowa');
+ const bad=await fetch(url+'/api/messages?lesson=00&agent=unknown');
+ assert.equal(bad.status,400);
+});
+test('reject unsupported agent before executing CLI',async()=>{
+ const r=await fetch(url+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json',Origin:url},body:JSON.stringify({lesson:'00',agent:'unknown',message:'Test'})});
+ assert.equal(r.status,400);
 });
