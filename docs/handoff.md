@@ -3,9 +3,9 @@
 ## Aktualny stan
 
 - Gałąź główna: `main`
-- Aktywne zadanie: moduł 01 — podstawy Claude i Claude Code
-- Powiązany Issue: #13
-- Aktywny PR: #14
+- Aktywne zadanie: brak
+- Ostatni zamknięty Issue: #13
+- Ostatni scalony PR: #14
 
 ## Co zostało wykonane
 
@@ -37,7 +37,7 @@
 
 ## Co pozostaje do wykonania
 
-- Przejrzeć i scalić PR #14, a następnie zamknąć Issue #13.
+- Przeprowadzić krótką próbę modułu 01 z użytkownikiem i zebrać uwagi o długości, jasności oraz zapamiętaniu materiału.
 
 ## Znane problemy
 
