@@ -3,9 +3,9 @@
 ## Aktualny stan
 
 - Gałąź główna: `main`
-- Aktywne zadanie: P2 — pierwsza kompletna lekcja wzorcowa
-- Powiązany Issue: #7
-- Aktywny PR: #8
+- Aktywne zadanie: brak; P2 zaimplementowane
+- Powiązany Issue: #7 — zamknięty
+- Aktywny PR: brak; PR #8 scalony
 
 ## Co zostało wykonane
 
@@ -31,7 +31,7 @@
 
 ## Co pozostaje do wykonania
 
-- Przejrzeć i scalić PR #8, a następnie zamknąć Issue #7.
+- Wykonać wizualny przegląd lekcji 00 w dostępnej przeglądarce przed użyciem jej jako wzorca modułu 01.
 
 ## Znane problemy
 
@@ -47,4 +47,4 @@
 
 ## Następny zalecany krok
 
-Po zakończeniu P2 przejrzeć wzorzec dydaktyczny przed rozpoczęciem modułu 01.
+Wykonać wizualny przegląd i krótką sesję użytkownika lekcji 00, a następnie zdecydować o rozpoczęciu modułu 01.
