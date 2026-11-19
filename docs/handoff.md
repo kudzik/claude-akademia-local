@@ -3,9 +3,9 @@
 ## Aktualny stan
 
 - Gałąź główna: `main`
-- Aktywne zadanie: zakończenie lokalnych adapterów wielu agentów
+- Aktywne zadanie: brak; P0 zakończone
 - Powiązany Issue: brak otwartych Issues
-- Aktywny PR: #3 zastępuje automatycznie zamknięty PR #2
+- Aktywny PR: brak; PR #3 został scalony i zastąpił automatycznie zamknięty PR #2
 
 ## Co zostało wykonane
 
@@ -26,8 +26,6 @@
 
 ## Co pozostaje do wykonania
 
-- Przejrzeć i scalić PR #3 po końcowych kontrolach GitHub.
-- Po scaleniu sprawdzić `main` i usunąć gałąź funkcji, jeśli nie jest już używana.
 - W kolejnym zadaniu utworzyć zakres P1 dotyczący pełnego odtwarzania stanu nauki.
 
 ## Znane problemy
@@ -44,4 +42,4 @@
 
 ## Następny zalecany krok
 
-Wykonać końcowy przegląd PR #3, scalić go metodą squash i potwierdzić testy na świeżym `main`.
+Utworzyć Issue i osobny PR dla P1: pełnego odtwarzania miejsca nauki i kontekstu po restarcie.
